@@ -64,7 +64,7 @@ This data is in a different format than we are used to.  It is a text file, rath
 
 ```{r}
 var_names <- c('a', 'p', 'c', 'l_k', 'w_k', 'asym', 'l_g', 'variety')
-seeds_df <- read_tsv(here::here('data/seeds_dataset.txt'),
+seeds_df <- read_tsv(here::here('data/seeds_dataset.txt'), #read_tsv reads text files
                      col_names = FALSE,
                      na = '-999') %>%
   setNames(var_names) %>%
@@ -109,11 +109,10 @@ ggplot(seeds_df) +
 
 From lecture, what are some of the considerations we will need to take into account?  Data wrangling, the clustering process?
 
-
-
-
-
-
+* How many clusters we think there will be
+* Which variables would we want to cluster on
+* How many times to run the centroids
+* Scaling the variables
 
 
 ## Pick the number of clusters
@@ -208,6 +207,12 @@ We see that a lot of Kama variety (triangles) are in cluster 2 (green), Rosa (sq
 seeds_cl %>% select(variety, cluster_no) %>% table()
 
 ```
+```{r}
+fviz_cluster(seeds_km, seeds_scale, 
+             choose.vars = c('a', 'asym'))
+```
+
+
 
 Takeaway: as we see from the graph, *most* wheat varieties in their own cluster k-means clustering. So this actually does a somewhat decent job of splitting up the three varieties into different clusters, with some overlap here and there, which is consistent with what we observed in exploratory data visualization. 
 
@@ -226,7 +231,7 @@ Start with complete linkage...  First step, create a Euclidean distance matrix
 seeds_dist <- dist(seeds_scale, method = 'euclidean') ### look at upper and diag arguments
 
 # Hierarchical clustering (complete linkage)
-seeds_hc_complete <- hclust(seeds_dist, method = "complete")
+seeds_hc_complete <- hclust(seeds_dist, method = "complete") #changing methods really changes dendrograms
 
 # Plot it (base plot):
 plot(seeds_hc_complete, cex = 0.6, hang = -1)
@@ -237,6 +242,11 @@ plot(seeds_hc_complete, cex = 0.6, hang = -1)
 seeds_cut_hc <- cutree(seeds_hc_complete, 3)
 table(seeds_cut_hc, seeds_complete$variety)
 ```
+
+```{r}
+ggdendrogram(seeds_hc_complete, rotate = TRUE)
+```
+
 
 What if we tried single, average, or ward.D linkage?
 
